@@ -1,99 +1,53 @@
 package com.crudv3.everis.servicio;
 
-import javax.swing.JOptionPane;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import com.crudv3.everis.modelo.Empleado;
 import com.crudv3.everis.repositorio.RepositorioEmpleado;
 
-@Controller
+@RestController
+@RequestMapping("/control")
 public class ControladorWeb {
-
-  public String auxDNI, campo, valor;
-
-  @Autowired
-  private MongoTemplate mongoTemplate;
 
   @Autowired
   RepositorioEmpleado repositorioEmpleado;
 
-  // Insertar empleado desde web
-  @GetMapping("/insertar")
-  public String insertarEmpleado(Model model) {
-    model.addAttribute("empleado", new Empleado());
-    return "agregar_empleado";
-  }
+  // Insertar Empleado
+  @PostMapping("/empleados")
+  public ResponseEntity<Empleado> insertarEmpleado(@RequestBody Empleado empleado) { // Crea un objeto de la clase Empleado con sus
+                                                                                     // atributos
+    try {
+      Empleado _empleado = repositorioEmpleado.save(new Empleado(empleado.getDni(), empleado.getNombre(),
+          empleado.getApellidos(), empleado.getPosicion()));
+      return new ResponseEntity<>(_empleado, HttpStatus.ACCEPTED); // Retorna 201
+    } catch (Exception e) {
+      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }/* Fin Insertar Empleado */
 
-  @PostMapping("/insertar")
-  public String insertarEmpleadoPost(@ModelAttribute Empleado empleado, Model model, RedirectAttributes redirectAttrs) {
-    mongoTemplate.insert(empleado, "empleados");
-    redirectAttrs
-        .addFlashAttribute("mensaje", "Empleado agregado")
-        .addFlashAttribute("clase", "success");
-    return "redirect:/gestion/empleados";
-  }
-  /* Fin Insertar empleado desde web */
+  // Modifica empleado
+  @PutMapping("/empleados/{id}")
+  public ResponseEntity<Empleado> updateEmpleado(@PathVariable("id") String id, @RequestBody Empleado empleado) {
+    Optional<Empleado> datosEmpleados = repositorioEmpleado.findById(id); // Con el Optional evito que devuelva un null
 
-  // Paso previo a modificar
-  @GetMapping("pasarelaMod")
-  public RedirectView pasarelaMod() {
-    System.setProperty("java.awt.headless", "false");
-    auxDNI = JOptionPane.showInputDialog("Introduce DNI de empleado a modificar:");
-    campo = JOptionPane.showInputDialog("Introduce Campo de empleado a modificar:");
-    valor = JOptionPane.showInputDialog("Introduce nuevo valor:");
-    return new RedirectView("/modificar");
-  }
+    if (datosEmpleados.isPresent()) { // alternativa a la condición repositorioEmpleado.existsById(id)
+      Empleado _empleado = datosEmpleados.get();
+      _empleado.setDni(empleado.getDni());
+      _empleado.setNombre(empleado.getNombre());
+      _empleado.setApellidos(empleado.getApellidos());
+      _empleado.setPosicion(empleado.getPosicion());
+      return new ResponseEntity<>(repositorioEmpleado.save(_empleado), HttpStatus.OK);
+    } else {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+  }/* Fin Modifica empleado */
 
-  // Modifica empleado por DNI
-  @GetMapping("/modificar")
-  public String Modificar() {
-    Query query = new Query();
-    query.addCriteria(Criteria.where("dni").is(auxDNI));
-    Update update = Update.update(campo, valor);
-    mongoTemplate.findAndModify(query, update, Empleado.class, "empleados");
-    return "redirect:/inicio";
-  }
-  /* Fin Modifica empleado por DNI */
-
-  // Paso previo a eliminar por DNI
-  @GetMapping("pasarelaDel")
-  public RedirectView pasarelaDel() {
-    System.setProperty("java.awt.headless", "false");
-    auxDNI = JOptionPane.showInputDialog("Introduce dni de empleado a eliminar:");
-    return new RedirectView("/eliminar");
-  }
-
-  // Eliminar empleado por DNI
-  @GetMapping("/eliminar")
-  public String Eliminar() {
-    Query query = new Query();
-    query.addCriteria(Criteria.where("dni").is(auxDNI));
-    mongoTemplate.findAndRemove(query, Empleado.class, "empleados");
-    return "redirect:/inicio";
-  }
-  /* Fin Eliminar por DNI */
-
-  // Eliminar todos los empleados
-  @GetMapping("/eliminarTodos")
-  public String EliminarTodos() {
-    repositorioEmpleado.deleteAll();
-    return "redirect:/gestion/empleados";
-  }
-  /* Fin Eliminar todos los empleados */
-
-  // Retorno a página principal
-  @GetMapping("/inicio")
-  public RedirectView retorno() {
-    return new RedirectView("http://localhost:8080");
-  }
 }
