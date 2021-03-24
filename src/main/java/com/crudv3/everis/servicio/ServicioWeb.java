@@ -104,6 +104,7 @@ public class ServicioWeb {
     }
   }/* Fin elimina todos los empleados */
 
+  // Mostrar todos los empleados
   @GetMapping("/empleados")
   public ResponseEntity<List<Empleado>> getAllEmpleados(@RequestParam(required = false) String dni) {
     try {
@@ -112,12 +113,12 @@ public class ServicioWeb {
       repositorioEmpleado.findAll().forEach(empleados::add); // Busca todos los empleados, los recorre y los agrega al List (con el ::add)
 
       if (empleados.isEmpty()) { // Comprueba si está vacío
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Retorna 204
       }
 
       return new ResponseEntity<>(empleados, HttpStatus.OK); // Devuelve los empleados (es el body) y retorna el codigo 200
     } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR); // Codigo de error 500
     }
-  }
+  } /* Fin mostrar todos los empleados */
 }
