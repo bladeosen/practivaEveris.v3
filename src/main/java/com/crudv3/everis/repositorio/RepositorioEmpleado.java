@@ -9,5 +9,7 @@ import com.crudv3.everis.modelo.Empleado;
 public interface RepositorioEmpleado extends MongoRepository<Empleado, String> {
   Optional<Empleado> findByDniContaining(String dni);
 
+  // boolean deleteById(String id);
+
   boolean existsByDni(String dni);
 }
