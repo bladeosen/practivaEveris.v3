@@ -27,8 +27,8 @@ public class ControladorWeb {
   @GetMapping("/empleados")
   public ResponseEntity<List<Empleado>> mostrarAllEmpleados() {
 
-    return new ResponseEntity<>(servicio.mostrarAllEmpleados(), HttpStatus.OK); // Devuelve los empleados (es el body) y retorna el codigo
-                                                                                // 200
+    return new ResponseEntity<>(servicio.mostrarAllEmpleados(), HttpStatus.OK); // Devuelve los empleados (es el body)
+                                                                                // y retorna el codigo 200
 
   } /* Fin mostrar todos los empleados */
 
@@ -71,9 +71,7 @@ public class ControladorWeb {
       } else {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Si el empleadoMod es null lanza el NOT_FOUND
       }
-    } catch (
-
-    Exception e) {
+    } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR); // Si falla la ejecucíon mostramos el código de error 500
     }
 
