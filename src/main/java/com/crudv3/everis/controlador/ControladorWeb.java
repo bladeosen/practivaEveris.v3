@@ -71,9 +71,7 @@ public class ControladorWeb {
       } else {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Si el empleadoMod es null lanza el NOT_FOUND
       }
-    } catch (
-
-    Exception e) {
+    } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR); // Si falla la ejecucíon mostramos el código de error 500
     }
 
