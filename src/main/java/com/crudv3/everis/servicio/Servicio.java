@@ -1,6 +1,5 @@
 package com.crudv3.everis.servicio;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +15,8 @@ public class Servicio {
 
   // Mostrar Todos los Empleados
   public List<Empleado> mostrarAllEmpleados() {
-
-    List<Empleado> empleados = new ArrayList<Empleado>();
-    repositorioEmpleado.findAll().forEach(empleados::add); // Busca todos los empleados, los recorre y los agrega al List (con el ::add)
-    return empleados;
+    // Busca todos los empleados
+    return repositorioEmpleado.findAll();
   }/* Fin mostrar Todos los Empleados */
 
   // Mostrar Empleado por ID
@@ -55,8 +52,17 @@ public class Servicio {
 
   // Eliminar Empleado por ID
   public boolean deleteEmpleado(String id) {
-    repositorioEmpleado.deleteById(id); // borramos empleado que coincida con el id
-    return true;
+    try {
+      repositorioEmpleado.deleteById(id); // borramos empleado que coincida con el id
+      if (!repositorioEmpleado.findById(id).isPresent()) { // Comprobamos que se ha borrado
+        return true; // Devolvemos true si el empleado ha sido eliminado
+      } else {
+        return false;
+      }
+    } catch (IllegalArgumentException e) {
+      e.printStackTrace();
+    }
+    return false;
   }/* Fin eliminar Empleado por ID */
 
   // Elimina Todos los empleados
