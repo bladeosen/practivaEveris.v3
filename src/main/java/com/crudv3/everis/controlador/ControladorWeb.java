@@ -27,8 +27,8 @@ public class ControladorWeb {
   @GetMapping("/empleados")
   public ResponseEntity<List<Empleado>> mostrarAllEmpleados() {
 
-    return new ResponseEntity<>(servicio.mostrarAllEmpleados(), HttpStatus.OK); // Devuelve los empleados (es el body) y retorna el codigo
-                                                                                // 200
+    return new ResponseEntity<>(servicio.mostrarAllEmpleados(), HttpStatus.OK); // Devuelve los empleados (es el body)
+                                                                                // y retorna el codigo 200
 
   } /* Fin mostrar todos los empleados */
 
