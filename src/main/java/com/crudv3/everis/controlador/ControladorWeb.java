@@ -1,6 +1,5 @@
 package com.crudv3.everis.controlador;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +27,8 @@ public class ControladorWeb {
   @GetMapping("/empleados")
   public ResponseEntity<List<Empleado>> mostrarAllEmpleados() {
 
-    List<Empleado> empleados = new ArrayList<>();
-    empleados.addAll(servicio.mostrarAllEmpleados());
-    if (empleados.isEmpty()) { // Comprueba si está vacío
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Retorna 204
-    }
-    return new ResponseEntity<>(empleados, HttpStatus.OK); // Devuelve los empleados (es el body) y retorna el codigo 200
+    return new ResponseEntity<>(servicio.mostrarAllEmpleados(), HttpStatus.OK); // Devuelve los empleados (es el body) y retorna el codigo
+                                                                                // 200
 
   } /* Fin mostrar todos los empleados */
 
@@ -41,8 +36,8 @@ public class ControladorWeb {
   @GetMapping("/empleados/{id}") // Solicita y recupera el recurso, en este caso sera el empleado con ID xx
   public ResponseEntity<Empleado> mostrarEmpleado(@PathVariable("id") String id) {
 
-    Optional<Empleado> datosEmpleado = servicio.mostrarEmpleado(id);
     try {
+      Optional<Empleado> datosEmpleado = servicio.mostrarEmpleado(id);
       if (datosEmpleado.isPresent()) { // Comprueba si existe, o si está presente, en este caso
         return new ResponseEntity<>(datosEmpleado.get(), HttpStatus.OK); // manda el body, retorna 200
       } else {
@@ -88,12 +83,11 @@ public class ControladorWeb {
   @DeleteMapping("/empleados/{id}")
   public ResponseEntity<HttpStatus> deleteEmpleado(@PathVariable("id") String id) {
 
-    try {
-      servicio.deleteEmpleado(id);
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT); // manda el body, retorna 200
-
-    } catch (Exception e) {
-      return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // Manda el código de error 500 si falla la ejecución
+    boolean result = servicio.deleteEmpleado(id);
+    if (result) {
+      return new ResponseEntity<>(HttpStatus.NO_CONTENT); // manda el body, retorna 204
+    } else {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
   }
 
